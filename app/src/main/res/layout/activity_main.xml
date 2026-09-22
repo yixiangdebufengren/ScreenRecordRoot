@@ -14,24 +14,55 @@
         app:title="@string/app_name"
         app:titleTextColor="?attr/colorOnSurface" />
 
-    <!-- 中间大录制按钮 -->
+    <!-- 中间录制按钮区域 -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_record"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:text="@string/btn_record"
-            app:cornerRadius="80dp"
-            app:backgroundTint="@color/red"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- M3 圆形进度指示器（录制时旋转的波浪线） -->
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                app:indicatorColor="?attr/colorPrimary"
+                app:trackColor="?attr/colorSurfaceVariant"
+                app:trackThickness="8dp"
+                app:indicatorSize="120dp" />
+
+            <!-- 居中大录制按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_record"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                app:icon="@drawable/ic_record"
+                app:iconSize="40dp"
+                app:iconTint="#FFFFFF"
+                app:cornerRadius="44dp"
+                app:backgroundTint="?attr/colorPrimary"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:layout_marginTop="-104dp" />
+
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="点击开始录制"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+        </LinearLayout>
 
     </FrameLayout>
 
@@ -40,16 +71,19 @@
         android:id="@+id/tv_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:text="录制的视频"
-        android:textSize="14sp"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp"
+        android:text="已录制的视频"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurfaceVariant" />
+        android:textColor="?attr/colorOnSurface" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:clipToPadding="false" />
+        android:layout_height="240dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
 
 </LinearLayout>

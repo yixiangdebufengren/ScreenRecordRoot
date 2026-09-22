@@ -1,6 +1,10 @@
 package com.fengyi.screenrecord;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.color.DynamicColors;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,17 +24,25 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private MaterialButton btnRecord;
+    private CircularProgressIndicator progress;
+    private TextView tvStatus;
     private RecyclerView recycler;
     private RecordManager recordManager;
     private VideoAdapter adapter;
     private final List<File> videos = new ArrayList<>();
 
+    private boolean recording = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 动态取色（Material You）
+        DynamicColors.applyToActivitiesIfAvailable(getApplication());
         setContentView(R.layout.activity_main);
 
         btnRecord = findViewById(R.id.btn_record);
+        progress = findViewById(R.id.progress);
+        tvStatus = findViewById(R.id.tv_status);
         recycler = findViewById(R.id.recycler);
 
         recordManager = RecordManager.get(this);
@@ -39,30 +53,53 @@ public class MainActivity extends AppCompatActivity {
 
         btnRecord.setOnClickListener(v -> toggleRecord());
 
+        requestStoragePermission();
+
+        recording = recordManager.isRecording();
         refreshVideos();
-        updateButton();
+        updateUi();
+    }
+
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 30) {
+            // Android 11+ 应用专属目录无需权限；若想录到公共目录可申请 MANAGE_EXTERNAL_STORAGE
+            return;
+        }
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 100);
+        }
     }
 
     private void toggleRecord() {
-        if (recordManager.isRecording()) {
+        if (recording) {
             recordManager.stopRecording();
             Toast.makeText(this, "已停止录制", Toast.LENGTH_SHORT).show();
         } else {
             boolean ok = recordManager.startRecording();
             if (ok) {
-                Toast.makeText(this, "录制中（screenrecord 已启动）", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "录制中…", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "启动失败，请确认已授予 root 权限", Toast.LENGTH_LONG).show();
             }
         }
-        updateButton();
+        recording = recordManager.isRecording();
+        updateUi();
     }
 
-    private void updateButton() {
-        boolean rec = recordManager.isRecording();
-        btnRecord.setText(rec ? R.string.btn_stop : R.string.btn_record);
-        btnRecord.setBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(getColor(R.color.red)));
+    private void updateUi() {
+        if (recording) {
+            btnRecord.setIconResource(R.drawable.ic_stop);
+            progress.setVisibility(android.view.View.VISIBLE);
+            tvStatus.setText("正在录制 · 点击停止");
+        } else {
+            btnRecord.setIconResource(R.drawable.ic_record);
+            progress.setVisibility(android.view.View.INVISIBLE);
+            tvStatus.setText("点击开始录制");
+        }
     }
 
     private void refreshVideos() {
@@ -86,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        recording = recordManager.isRecording();
         refreshVideos();
-        updateButton();
+        updateUi();
     }
 }

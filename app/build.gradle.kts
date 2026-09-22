@@ -1,6 +1,25 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     id("com.android.application")
 }
+
+// 以 git 提交次数作为版本号
+fun gitCommitCount(): Int {
+    return try {
+        val out = ByteArrayOutputStream()
+        exec {
+            commandLine("git", "rev-list", "--count", "HEAD")
+            standardOutput = out
+        }.assertNormalExitValue()
+        out.toString().trim().toInt()
+    } catch (e: Exception) {
+        1
+    }
+}
+
+val gitVersionCode = gitCommitCount()
+val gitVersionName = "1.0.$gitVersionCode"
 
 android {
     namespace = "com.fengyi.screenrecord"
@@ -10,13 +29,23 @@ android {
         applicationId = "com.fengyi.screenrecord"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = gitVersionCode
+        versionName = gitVersionName
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../keystore/release.jks")
+            storePassword = (project.findProperty("KEYSTORE_PASSWORD") as String?) ?: "android"
+            keyAlias = "screenrecord"
+            keyPassword = (project.findProperty("KEY_PASSWORD") as String?) ?: "android"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -28,15 +57,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.core:core:1.13.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
 }

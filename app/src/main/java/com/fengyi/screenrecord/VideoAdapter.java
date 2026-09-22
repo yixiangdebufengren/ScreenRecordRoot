@@ -2,14 +2,14 @@ package com.fengyi.screenrecord;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -50,8 +50,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VH> {
 
     private void play(File file) {
         try {
+            android.net.Uri uri = FileProvider.getUriForFile(
+                    context, context.getPackageName() + ".fileprovider", file);
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.fromFile(file), "video/mp4");
+            intent.setDataAndType(uri, "video/mp4");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             context.startActivity(intent);
         } catch (Exception e) {
