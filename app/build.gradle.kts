@@ -39,5 +39,4 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
-    implementation("com.github.topjohnwu.libsu:core:5.2.2")
 }

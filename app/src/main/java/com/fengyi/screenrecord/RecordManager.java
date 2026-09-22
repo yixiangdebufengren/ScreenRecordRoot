@@ -3,18 +3,21 @@ package com.fengyi.screenrecord;
 import android.content.Context;
 import android.os.Environment;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import top.libsu.core.Shell;
 
 /**
  * screenrecord 命令的开关控制器。
  *
  * 本 APP 不参与实际的录屏，只是通过 root 启动/停止系统的 screenrecord 命令。
  * 因此可以录制息屏、任意界面，录制与否完全取决于命令本身是否在运行。
+ *
+ * 通过 ProcessBuilder 执行 `su -c`，兼容 Magisk / KernelSU / APatch，
+ * 也兼容仅授予 ADB 权限的 root（su 可用即可）。
  */
 public class RecordManager {
 
@@ -39,30 +42,37 @@ public class RecordManager {
     }
 
     /**
-     * 用 root 执行任意 shell 命令，返回结果文本（失败返回 null）。
+     * 用 root 权限执行命令，返回 stdout（异常返回 null）。
+     * 与 libsu 不同，这里不依赖任何第三方库。
      */
-    private String sh(String... cmds) {
+    private String sh(String cmd) {
         try {
-            Shell.Result r = Shell.getShell().newJob().add(cmds).exec();
-            if (r.isSuccess()) {
-                return String.join("\n", r.getOut());
+            Process p = new ProcessBuilder("su", "-c", cmd)
+                    .redirectErrorStream(true)
+                    .start();
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    sb.append(line).append('\n');
+                }
             }
-        } catch (Exception ignored) {
+            p.waitFor();
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 
-    /**
-     * 当前是否正在录制：直接检查系统里有没有 screenrecord 进程。
-     */
+    /** 当前是否正在录制：检查系统里有没有 screenrecord 进程。 */
     public boolean isRecording() {
         String out = sh("pgrep -x screenrecord");
         return out != null && !out.trim().isEmpty();
     }
 
     /**
-     * 开始录制。screenrecord 是阻塞命令，用后台方式挂到 root 守护进程。
-     * 用 setsid + 输出重定向 + & 彻底脱离，即使 APP 被杀死命令也继续跑。
+     * 开始录制。screenrecord 是阻塞命令，用 setsid + nohup + & 完全脱离。
+     * 注意：这里用 `sh -c` 包裹，确保后台符号生效。
      */
     public boolean startRecording() {
         if (isRecording()) return true;
@@ -71,25 +81,20 @@ public class RecordManager {
         File out = new File(outputDir, "rec_" + time + ".mp4");
 
         // 确保目录存在
-        sh("mkdir -p " + outputDir.getAbsolutePath(),
-           "chmod 777 " + outputDir.getAbsolutePath());
+        sh("mkdir -p " + outputDir.getAbsolutePath()
+                + " && chmod 777 " + outputDir.getAbsolutePath());
 
-        // screenrecord 默认最长 3 分钟，这里延长到 1800 秒（30 分钟）
-        // setsid + nohup + & 让命令完全脱离 APP 进程独立运行
-        String cmd = "setsid nohup screenrecord "
-                + "--time-limit=1800 "
-                + "--bit-rate=8000000 "
-                + out.getAbsolutePath()
-                + " > /dev/null 2>&1 &";
+        // screenrecord 默认最长 3 分钟，延长到 1800 秒（30 分钟）
+        // 通过 sh -c 执行，setsid/nohup/& 让命令脱离 APP 独立运行，息屏也能录
+        String inner = "screenrecord --time-limit=1800 --bit-rate=8000000 "
+                + out.getAbsolutePath();
+        String cmd = "sh -c \"setsid nohup " + inner + " > /dev/null 2>&1 &\"";
 
         String r = sh(cmd);
-        // sh 返回 null 表示执行失败；即使返回空字符串也表示命令已提交
         return r != null;
     }
 
-    /**
-     * 停止录制：向 screenrecord 发 SIGINT，让它把视频正常写入并退出。
-     */
+    /** 停止录制：向 screenrecord 发 SIGINT 让视频正常写入并退出。 */
     public void stopRecording() {
         sh("pkill -INT -x screenrecord");
     }
