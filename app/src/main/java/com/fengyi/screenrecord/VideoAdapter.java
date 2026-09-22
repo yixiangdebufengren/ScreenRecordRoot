@@ -28,6 +28,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VH> {
 
     public interface Listener {
         void onDelete(File file);
+        void onExport(File file);
     }
 
     private final Context context;
@@ -68,6 +69,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VH> {
         holder.itemView.setOnClickListener(v -> play(file));
         holder.btnDelete.setOnClickListener(v -> {
             if (listener != null) listener.onDelete(file);
+        });
+        holder.btnExport.setOnClickListener(v -> {
+            if (listener != null) listener.onExport(file);
         });
     }
 
@@ -123,6 +127,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VH> {
         final TextView tvName;
         final TextView tvInfo;
         final View btnDelete;
+        final View btnExport;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -130,6 +135,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VH> {
             tvName = itemView.findViewById(R.id.tv_name);
             tvInfo = itemView.findViewById(R.id.tv_info);
             btnDelete = itemView.findViewById(R.id.btn_delete);
+            btnExport = itemView.findViewById(R.id.btn_export);
         }
     }
 }

@@ -126,4 +126,46 @@ public class RecordManager {
     public boolean deleteFile(File f) {
         return sh("rm -f " + f.getAbsolutePath()) != null;
     }
+
+    /**
+     * 导出视频到公共 Download 目录，让系统相册（MediaStore）能扫描识别。
+     * 返回导出的目标文件（成功），失败返回 null。
+     */
+    public File exportToGallery(File src) {
+        if (src == null || !src.exists()) return null;
+
+        // 目标目录：/sdcard/Download/ScreenRecord
+        File downloadDir = new File("/sdcard/Download/ScreenRecord");
+        String dirPath = downloadDir.getAbsolutePath();
+
+        // 目标文件名（避免重名，加时间戳）
+        String baseName = src.getName();
+        String targetName;
+        if (baseName.endsWith(".mp4")) {
+            targetName = baseName.substring(0, baseName.length() - 4)
+                    + "_" + System.currentTimeMillis() + ".mp4";
+        } else {
+            targetName = baseName + "_" + System.currentTimeMillis();
+        }
+        File target = new File(downloadDir, targetName);
+
+        // 用 root 建目录 + 复制 + 放宽权限，让相册可读
+        String r = sh("mkdir -p " + dirPath
+                + " && cp " + src.getAbsolutePath() + " " + target.getAbsolutePath()
+                + " && chmod 664 " + target.getAbsolutePath()
+                + " && chown 1023:1023 " + target.getAbsolutePath() + " 2>/dev/null");
+
+        // chown 到 media_rw(1023) 可能失败（取决于内核），失败也不影响 chmod 664 的可读性
+        // 重新确保权限（即使 chown 失败）
+        sh("chmod 664 " + target.getAbsolutePath() + " 2>/dev/null");
+
+        if (r != null && target.exists()) {
+            return target;
+        }
+        // r 可能因 chown 失败返回非 null 但 target 已复制成功，再确认一次
+        if (target.exists() && target.length() > 0) {
+            return target;
+        }
+        return null;
+    }
 }

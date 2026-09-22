@@ -2,6 +2,7 @@ package com.fengyi.screenrecord;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -47,7 +48,17 @@ public class MainActivity extends AppCompatActivity {
 
         recordManager = RecordManager.get(this);
 
-        adapter = new VideoAdapter(this, videos, this::deleteVideo);
+        adapter = new VideoAdapter(this, videos, new VideoAdapter.Listener() {
+            @Override
+            public void onDelete(File file) {
+                deleteVideo(file);
+            }
+
+            @Override
+            public void onExport(File file) {
+                exportVideo(file);
+            }
+        });
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
 
@@ -129,6 +140,27 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, ok ? "已删除 " + file.getName() : "删除失败",
                 Toast.LENGTH_SHORT).show();
         refreshVideos();
+    }
+
+    private void exportVideo(File file) {
+        // 导出到 Download 目录是阻塞的 root 复制操作，放后台线程
+        new Thread(() -> {
+            File target = recordManager.exportToGallery(file);
+            runOnUiThread(() -> {
+                if (target != null) {
+                    Toast.makeText(this, "已保存到相册：" + target.getName(),
+                            Toast.LENGTH_SHORT).show();
+                    // 触发媒体扫描，让相册立即识别新视频
+                    MediaScannerConnection.scanFile(
+                            this,
+                            new String[]{target.getAbsolutePath()},
+                            new String[]{"video/mp4"},
+                            null);
+                } else {
+                    Toast.makeText(this, "保存失败", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
     }
 
     @Override

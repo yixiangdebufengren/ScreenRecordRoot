@@ -42,7 +42,7 @@
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintStart_toEndOf="@id/iv_thumb"
-            app:layout_constraintEnd_toStartOf="@id/btn_delete"
+            app:layout_constraintEnd_toStartOf="@id/btn_export"
             app:layout_constraintTop_toTopOf="@id/iv_thumb"
             app:layout_constraintBottom_toTopOf="@id/tv_info" />
 
@@ -57,8 +57,28 @@
             android:textSize="12sp"
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintStart_toEndOf="@id/iv_thumb"
-            app:layout_constraintEnd_toStartOf="@id/btn_delete"
+            app:layout_constraintEnd_toStartOf="@id/btn_export"
             app:layout_constraintBottom_toBottomOf="@id/iv_thumb" />
+
+        <!-- 导出按钮：保存到相册 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_export"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            app:icon="@drawable/ic_export"
+            app:iconSize="20dp"
+            app:iconPadding="0dp"
+            app:iconTint="?attr/colorPrimary"
+            app:cornerRadius="22dp"
+            app:backgroundTint="?attr/colorPrimaryContainer"
+            app:strokeWidth="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            app:layout_constraintEnd_toStartOf="@id/btn_delete"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <!-- 删除按钮：图标型，垂直居中，无错位 -->
         <com.google.android.material.button.MaterialButton
