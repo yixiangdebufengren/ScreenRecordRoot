@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.color.DynamicColors;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private MaterialButton btnRecord;
-    private CircularProgressIndicator progress;
+    private WaveProgressView progress;
     private TextView tvStatus;
     private RecyclerView recycler;
     private RecordManager recordManager;
@@ -43,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         btnRecord = findViewById(R.id.btn_record);
         progress = findViewById(R.id.progress);
+        // 波浪线颜色跟随主题 primary，笔画 8dp
+        progress.setColor(resolveColorPrimary());
+        progress.setStrokeWidth(8f);
         tvStatus = findViewById(R.id.tv_status);
         recycler = findViewById(R.id.recycler);
 
@@ -69,6 +71,20 @@ public class MainActivity extends AppCompatActivity {
         recording = recordManager.isRecording();
         refreshVideos();
         updateUi();
+    }
+
+    /** 从当前主题解析 primary 颜色（跟随 Material You 动态取色）。 */
+    private int resolveColorPrimary() {
+        int color = 0xFF6750A4; // M3 默认 primary
+        try {
+            android.util.TypedValue tv = new android.util.TypedValue();
+            if (getTheme().resolveAttribute(
+                    com.google.android.material.R.attr.colorPrimary, tv, true)) {
+                color = tv.data;
+            }
+        } catch (Exception ignored) {
+        }
+        return color;
     }
 
     private void requestStoragePermission() {
@@ -116,9 +132,11 @@ public class MainActivity extends AppCompatActivity {
         if (recording) {
             btnRecord.setIconResource(R.drawable.ic_stop);
             progress.setVisibility(android.view.View.VISIBLE);
+            progress.start();
             tvStatus.setText("正在录制 · 点击停止");
         } else {
             btnRecord.setIconResource(R.drawable.ic_record);
+            progress.stop();
             progress.setVisibility(android.view.View.INVISIBLE);
             tvStatus.setText("点击开始录制");
         }
