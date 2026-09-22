@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Root记录</string>
+    <string name="tile_label">屏幕录制</string>
+    <string name="btn_record">开始录制</string>
+    <string name="btn_stop">停止录制</string>
+</resources>
