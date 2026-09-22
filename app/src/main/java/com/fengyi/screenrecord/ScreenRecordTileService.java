@@ -1,10 +1,12 @@
 package com.fengyi.screenrecord;
 
+import android.media.MediaScannerConnection;
 import android.os.Handler;
 import android.os.Looper;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,6 +54,9 @@ public class ScreenRecordTileService extends TileService {
                 manager.startRecording();
             } else {
                 manager.stopRecording();
+                // 磁贴停止后自动导出刚录好的视频到 Download，让相册可见，
+                // 用户无需再进 APP 手动点导出。
+                exportLatest(manager);
             }
             // 2. 等 root 命令真正完成后，校正状态，确保和实际一致
             boolean real = manager.isRecording();
@@ -68,6 +73,23 @@ public class ScreenRecordTileService extends TileService {
      */
     private void runInBackground(Runnable r) {
         executor.execute(r);
+    }
+
+    /**
+     * 导出刚录制的最新视频到 Download，并触发 MediaScanner 让相册识别。
+     */
+    private void exportLatest(RecordManager manager) {
+        File latest = manager.getLatestRecording();
+        if (latest == null) return;
+        File exported = manager.exportToGallery(latest);
+        if (exported != null) {
+            // 触发系统媒体扫描，让相册立即识别导出文件
+            MediaScannerConnection.scanFile(
+                    this,
+                    new String[]{exported.getAbsolutePath()},
+                    new String[]{"video/mp4"},
+                    null);
+        }
     }
 
     private void renderTile(boolean recording) {

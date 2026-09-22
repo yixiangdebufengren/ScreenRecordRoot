@@ -128,6 +128,23 @@ public class RecordManager {
     }
 
     /**
+     * 获取最新录制的 mp4 文件（按最后修改时间排序取最新）。
+     * 用于磁贴停止后自动导出刚录好的视频。无文件时返回 null。
+     */
+    public File getLatestRecording() {
+        File[] files = outputDir.listFiles((dir, name) ->
+                name.endsWith(".mp4") || name.endsWith(".MP4"));
+        if (files == null || files.length == 0) return null;
+        File latest = files[0];
+        for (File f : files) {
+            if (f.lastModified() > latest.lastModified()) {
+                latest = f;
+            }
+        }
+        return latest;
+    }
+
+    /**
      * 导出视频到公共 Download 目录，让系统相册（MediaStore）能扫描识别。
      * 返回导出的目标文件（成功），失败返回 null。
      */
