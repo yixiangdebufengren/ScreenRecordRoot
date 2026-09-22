@@ -36,9 +36,10 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("../keystore/release.jks")
-            storePassword = (project.findProperty("KEYSTORE_PASSWORD") as String?) ?: "android"
+            val ksp = System.getenv("KEYSTORE_PASSWORD") ?: "ScreenRecord2026"
+            storePassword = ksp
             keyAlias = "screenrecord"
-            keyPassword = (project.findProperty("KEY_PASSWORD") as String?) ?: "android"
+            keyPassword = ksp
         }
     }
 
