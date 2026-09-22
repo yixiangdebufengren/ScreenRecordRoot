@@ -46,7 +46,7 @@ public class ScreenRecordTileService extends TileService {
         // 1. 立即翻转期望状态并刷新磁贴（乐观更新，消除延迟感）
         targetRecording = !targetRecording;
         renderTile(targetRecording);
-        unlockAndRun(() -> {
+        runInBackground(() -> {
             RecordManager manager = RecordManager.get(this);
             if (targetRecording) {
                 manager.startRecording();
@@ -63,15 +63,11 @@ public class ScreenRecordTileService extends TileService {
     }
 
     /**
-     * 磁贴处于锁定屏幕等场景时，点击后先解锁再执行；
-     * 全部逻辑放后台线程，避免阻塞主线程。
+     * 后台线程执行 root 操作，避免阻塞主线程。
+     * （不能与父类的 unlockAndRun 重名，故用独立方法名）
      */
-    private void unlockAndRun(Runnable r) {
-        if (isLocked()) {
-            unlockAndRun(r);
-        } else {
-            executor.execute(r);
-        }
+    private void runInBackground(Runnable r) {
+        executor.execute(r);
     }
 
     private void renderTile(boolean recording) {
