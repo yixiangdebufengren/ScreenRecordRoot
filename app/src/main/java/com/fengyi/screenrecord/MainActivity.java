@@ -76,8 +76,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void toggleRecord() {
         if (recording) {
-            recordManager.stopRecording();
-            Toast.makeText(this, "已停止录制", Toast.LENGTH_SHORT).show();
+            // 停止录制是阻塞操作（root 命令 + sleep），放后台线程执行，避免 UI 卡顿
+            btnRecord.setEnabled(false);
+            tvStatus.setText("正在停止…");
+            new Thread(() -> {
+                recordManager.stopRecording();
+                runOnUiThread(() -> {
+                    btnRecord.setEnabled(true);
+                    recording = recordManager.isRecording();
+                    refreshVideos();
+                    updateUi();
+                    Toast.makeText(this, "已停止录制", Toast.LENGTH_SHORT).show();
+                });
+            }).start();
         } else {
             boolean ok = recordManager.startRecording();
             if (ok) {
@@ -85,9 +96,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "启动失败，请确认已授予 root 权限", Toast.LENGTH_LONG).show();
             }
+            recording = recordManager.isRecording();
+            updateUi();
         }
-        recording = recordManager.isRecording();
-        updateUi();
     }
 
     private void updateUi() {
