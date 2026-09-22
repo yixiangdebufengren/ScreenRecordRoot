@@ -3,9 +3,6 @@
 -keep class com.fengyi.screenrecord.ScreenRecordTileService { *; }
 -keep class com.fengyi.screenrecord.MainActivity { *; }
 
-# 自定义 View 在 XML 布局中引用，需保留类名避免 inflate 失败
--keep class com.fengyi.screenrecord.WaveProgressView { *; }
-
 # FileProvider 及其相关
 -keep class androidx.core.content.FileProvider { *; }
 

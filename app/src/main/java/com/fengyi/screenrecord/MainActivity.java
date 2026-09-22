@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.color.DynamicColors;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private MaterialButton btnRecord;
-    private WaveProgressView progress;
+    private CircularProgressIndicator progress;
     private TextView tvStatus;
     private RecyclerView recycler;
     private RecordManager recordManager;
@@ -42,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
         btnRecord = findViewById(R.id.btn_record);
         progress = findViewById(R.id.progress);
-        // 波浪线颜色跟随主题 primary，笔画 8dp
-        progress.setColor(resolveColorPrimary());
-        progress.setStrokeWidth(8f);
         tvStatus = findViewById(R.id.tv_status);
         recycler = findViewById(R.id.recycler);
 
@@ -132,11 +130,9 @@ public class MainActivity extends AppCompatActivity {
         if (recording) {
             btnRecord.setIconResource(R.drawable.ic_stop);
             progress.setVisibility(android.view.View.VISIBLE);
-            progress.start();
             tvStatus.setText("正在录制 · 点击停止");
         } else {
             btnRecord.setIconResource(R.drawable.ic_record);
-            progress.stop();
             progress.setVisibility(android.view.View.INVISIBLE);
             tvStatus.setText("点击开始录制");
         }
