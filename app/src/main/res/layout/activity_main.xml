@@ -14,46 +14,49 @@
         app:titleTextColor="?attr/colorOnSurface"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 录制按钮容器：居中 -->
+    <!-- 录制按钮容器：真正居中 -->
     <FrameLayout
         android:id="@+id/record_container"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toTopOf="@id/tv_hint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-        android:padding="32dp">
+        app:layout_constraintVertical_bias="0.45"
+        android:padding="8dp">
 
-        <!-- M3 原生圆形进度指示器（旋转波浪） -->
+        <!-- M3 原生圆形进度指示器（indeterminate 旋转波浪线） -->
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progress"
-            android:layout_width="168dp"
-            android:layout_height="168dp"
+            android:layout_width="188dp"
+            android:layout_height="188dp"
             android:layout_gravity="center"
             android:indeterminate="true"
             android:visibility="invisible"
             app:indicatorColor="?attr/colorPrimary"
-            app:trackColor="?attr/colorSurfaceVariant"
-            app:trackThickness="6dp"
-            app:indicatorSize="168dp" />
+            app:trackColor="#00000000"
+            app:trackThickness="8dp"
+            app:trackCornerRadius="9dp"
+            app:indicatorSize="188dp"
+            app:indicatorInset="0dp" />
 
-        <!-- 居中大录制按钮 -->
+        <!-- 居中大录制按钮：纯圆形，无偏移 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_record"
-            android:layout_width="104dp"
-            android:layout_height="104dp"
+            android:layout_width="112dp"
+            android:layout_height="112dp"
             android:layout_gravity="center"
             app:icon="@drawable/ic_record"
-            app:iconSize="44dp"
-            app:iconGravity="textStart"
+            app:iconSize="48dp"
             app:iconPadding="0dp"
             app:iconTint="#FFFFFF"
-            app:cornerRadius="52dp"
+            app:cornerRadius="56dp"
             app:backgroundTint="?attr/colorPrimary"
             android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
 
     </FrameLayout>
 
@@ -68,7 +71,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 底部视频卡片区 -->
+    <!-- 底部视频卡片区标题 -->
     <TextView
         android:id="@+id/tv_hint"
         android:layout_width="match_parent"
@@ -77,8 +80,9 @@
         android:paddingTop="12dp"
         android:paddingBottom="8dp"
         android:text="已录制的视频"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
+        android:letterSpacing="0.01"
         android:textColor="?attr/colorOnSurface"
         app:layout_constraintBottom_toTopOf="@id/recycler" />
 
