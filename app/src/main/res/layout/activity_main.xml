@@ -26,7 +26,7 @@
         app:layout_constraintVertical_bias="0.45"
         android:padding="8dp">
 
-        <!-- M3 原生圆形进度指示器（indeterminate 旋转波浪线） -->
+        <!-- M3 圆形进度指示器（indeterminate 环绕旋转弧段） -->
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progress"
             android:layout_width="188dp"
@@ -35,28 +35,27 @@
             android:indeterminate="true"
             android:visibility="invisible"
             app:indicatorColor="?attr/colorPrimary"
-            app:trackColor="#00000000"
+            app:trackColor="#22000000"
             app:trackThickness="8dp"
             app:trackCornerRadius="9dp"
             app:indicatorSize="188dp"
-            app:indicatorInset="0dp" />
+            app:indicatorInset="14dp" />
 
-        <!-- 居中大录制按钮：纯圆形，无偏移 -->
+        <!-- 居中大录制按钮：纯圆形，图标真正居中 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_record"
             android:layout_width="112dp"
             android:layout_height="112dp"
             android:layout_gravity="center"
             app:icon="@drawable/ic_record"
-            app:iconSize="48dp"
+            app:iconSize="44dp"
             app:iconPadding="0dp"
+            app:iconGravity="textStart"
             app:iconTint="#FFFFFF"
             app:cornerRadius="56dp"
             app:backgroundTint="?attr/colorPrimary"
             android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp" />
+            android:insetBottom="0dp" />
 
     </FrameLayout>
 

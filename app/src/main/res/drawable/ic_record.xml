@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 录制图标：白色圆环 + 中心红色圆点（经典 screen record，M3 风格） -->
+<!-- 录制图标：白色空心三角形（经典 screen-record 播放态） -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"
     android:height="48dp"
@@ -7,8 +7,5 @@
     android:viewportHeight="24">
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M12,5.5a6.5,6.5 0,1 0,0 13a6.5,6.5 0,1 0,0 -13zM12,8.5a3.5,3.5 0,1 1,0 7a3.5,3.5 0,1 1,0 -7z" />
-    <path
-        android:fillColor="#FF3B30"
-        android:pathData="M12,9.5a2.5,2.5 0,1 0,0 5a2.5,2.5 0,1 0,0 -5z" />
+        android:pathData="M10,8.5l7,3.5 -7,3.5z" />
 </vector>
