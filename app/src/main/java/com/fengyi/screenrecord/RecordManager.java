@@ -1,7 +1,6 @@
 package com.fengyi.screenrecord;
 
 import android.content.Context;
-import android.os.Process;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,7 +30,7 @@ public class RecordManager {
     private final int appUid;
 
     private RecordManager(Context context) {
-        appUid = Process.myUid();
+        appUid = android.os.Process.myUid();
         File ext = context.getExternalFilesDir(null);
         outputDir = new File(ext, "recordings");
         if (!outputDir.exists()) {
