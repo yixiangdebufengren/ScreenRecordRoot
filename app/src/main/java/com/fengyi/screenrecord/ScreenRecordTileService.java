@@ -40,6 +40,8 @@ public class ScreenRecordTileService extends TileService {
     @Override
     public void onStopListening() {
         super.onStopListening();
+        // 磁贴不再显示，关闭线程池并停止服务，让 APP 进程尽快退出、不驻留
+        shutdownAndStop();
     }
 
     @Override
@@ -63,6 +65,11 @@ public class ScreenRecordTileService extends TileService {
             mainHandler.post(() -> {
                 targetRecording = real;
                 renderTile(real);
+                // 录制已停止（且若从未开始则同样退出），关闭线程池并停止服务，
+                // 让 APP 进程立刻结束，不在后台驻留。
+                if (!real) {
+                    shutdownAndStop();
+                }
             });
         });
     }
@@ -72,7 +79,14 @@ public class ScreenRecordTileService extends TileService {
      * （不能与父类的 unlockAndRun 重名，故用独立方法名）
      */
     private void runInBackground(Runnable r) {
+        if (executor.isShutdown()) return;
         executor.execute(r);
+    }
+
+    /** 关闭线程池并停止磁贴服务，促使进程退出、不驻留后台。 */
+    private void shutdownAndStop() {
+        executor.shutdownNow();
+        stopSelf();
     }
 
     /**
