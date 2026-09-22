@@ -4,7 +4,7 @@ plugins {
     id("com.android.application")
 }
 
-// 以 git 提交次数作为版本号
+// 以 git 提交次数作为 versionCode，版本名采用 "<count>-git-<shortHash>" 格式
 fun gitCommitCount(): Int {
     return try {
         val out = ByteArrayOutputStream()
@@ -18,8 +18,23 @@ fun gitCommitCount(): Int {
     }
 }
 
-val gitVersionCode = gitCommitCount()
-val gitVersionName = "1.0.$gitVersionCode"
+fun gitCommitCountValue(): Int = gitCommitCount()
+
+fun gitShortHash(): String {
+    return try {
+        val out = ByteArrayOutputStream()
+        exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+            standardOutput = out
+        }.assertNormalExitValue()
+        out.toString().trim()
+    } catch (e: Exception) {
+        "unknown"
+    }
+}
+
+val gitVersionCode = gitCommitCountValue()
+val gitVersionName = "$gitVersionCode-git-${gitShortHash()}"
 
 android {
     namespace = "com.fengyi.screenrecord"
@@ -45,7 +60,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
